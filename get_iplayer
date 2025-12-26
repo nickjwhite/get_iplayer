@@ -6939,6 +6939,9 @@ sub postproc {
 
 	if ( (! $return) && -f $prog->{filepart} && stat($prog->{filepart})->size > $min_download_size ) {
 		unlink( $audio_file, $video_file );
+		if ( $opt->{subsembed} && -f $prog->{subsfile} ) {
+			unlink( $prog->{subsfile} );
+		}
 	} else {
 		# remove the failed converted file
 		unlink $prog->{filepart};
