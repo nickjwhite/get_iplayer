@@ -6601,6 +6601,9 @@ sub get_stream_data {
 		} elsif ( $mattribs->{service} =~ /(dvf|hvf|hls)/ && $mattribs->{kind} =~ 'video' ) {
 			my $stm = $mattribs->{service} =~ /dvf/ ? "dash" : "hls";
 			my $ext = "mp4";
+			if ( $opt->{subsembed} ) {
+				$ext = "mkv";
+			}
 			if ( $mattribs->{height} > 700 ) {
 				get_stream_data_cdn( $data, $mattribs, "${stm}hd", $stm, $ext );
 			} elsif ( $mattribs->{height} > 500 ) {
@@ -6906,7 +6909,7 @@ sub postproc {
 		if ( ! $opt->{ffmpegobsolete} ) {
 			if ( -f $prog->{subsfile} ) {
 					push @input_opts, ( '-i', main::decode_fs($prog->{subsfile}) );
-					push @codec_opts, ( '-c:s', 'mov_text' );
+					push @codec_opts, ( '-c:s', 'copy' );
 					push @stream_opts, ( '-map', '2:s:0' ) if $audio_ok && $video_ok;
 					push @stream_opts, ( '-metadata:s:s:0', 'language=eng' );
 					$embedding = " and embedding subtitles";
@@ -9503,7 +9506,7 @@ sub tags_from_metadata {
 	$tags->{title} ||= $meta->{show};
 	# iTunes media kind
 	$tags->{stik} = 'Normal';
-	if ( $meta->{ext} =~ /(mp4|m4v)/i) {
+	if ( $meta->{ext} =~ /(mp4|m4v|mkv)/i) {
 		$tags->{stik} = $meta->{categories} =~ /(film|movie)/i ? 'Short Film' : 'TV Show';
 	}
 	$tags->{advisory} = $meta->{guidance} ? 'explicit' : 'remove';
@@ -9545,7 +9548,7 @@ sub tags_from_metadata {
 	$tags->{podcastGUID} = $meta->{player};
 	$tags->{artwork} = $meta->{thumbfile};
 	# video flag
-	$tags->{is_video} = $meta->{ext} =~ /(mp4|m4v)/i;
+	$tags->{is_video} = $meta->{ext} =~ /(mp4|m4v|mkv)/i;
 	# tvshow flag
 	$tags->{is_tvshow} = $tags->{stik} eq 'TV Show';
 	# podcast flag
